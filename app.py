@@ -84,11 +84,10 @@ def notes():
             c = db.cursor()
             statement = """SELECT * from NOTES where publicID = ?"""
             c.execute(statement, (noteid,))
-            result = c.fetchall()
-            if(len(result)>0):
-                row = result[0]
+            result = c.fetchone()
+            if result:
                 statement = """INSERT INTO notes(id,assocUser,dateWritten,note,publicID) VALUES(null, ?, ?, ?, ?);"""
-                c.execute(statement, (session['userid'], row[2], row[3], row[4]))
+                c.execute(statement, (session['userid'], result[2], result[3], result[4]))
             else:
                 importerror="No such note with that ID!"
             db.commit()
