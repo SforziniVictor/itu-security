@@ -115,17 +115,17 @@ def login():
         c = db.cursor()
         statement = "SELECT * FROM users WHERE username = ? AND password = ?;"
         c.execute(statement, (username, password))
-        result = c.fetchall()
+        result = c.fetchone()
 
-        if len(result) > 0:
+        if result:
             session.clear()
             session['logged_in'] = True
-            session['userid'] = result[0][0]
-            session['username']=result[0][1]
+            session['userid'] = result[0]
+            session['username'] = result[1]
             return redirect(url_for('index'))
         else:
             error = "Wrong username or password!"
-    return render_template('login.html',error=error)
+    return render_template('login.html', error=error)
 
 
 @app.route("/register/", methods=('GET', 'POST'))
@@ -140,12 +140,7 @@ def register():
         password = request.form['password']
         db = connect_db()
         c = db.cursor()
-        pass_statement = """SELECT * FROM users WHERE password = ?;"""
         user_statement = """SELECT * FROM users WHERE username = ?;"""
-        c.execute(pass_statement, (password,))
-        if(len(c.fetchall())>0):
-            errored = True
-            passworderror = "That password is already in use by someone else!"
 
         c.execute(user_statement, (username,))
         if c.fetchone():
