@@ -28,7 +28,7 @@ CREATE TABLE notes (
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL
 );
 
@@ -148,7 +148,7 @@ def register():
             passworderror = "That password is already in use by someone else!"
 
         c.execute(user_statement, (username,))
-        if(len(c.fetchall())>0):
+        if c.fetchone():
             errored = True
             usererror = "That username is already in use by someone else!"
 
