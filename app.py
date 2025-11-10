@@ -1,5 +1,6 @@
 import json, sqlite3, click, functools, os, hashlib,time, random, sys, secrets
 from flask import Flask, current_app, g, session, redirect, render_template, url_for, request
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 
@@ -112,11 +113,10 @@ def login():
         password = request.form['password']
         db = connect_db()
         c = db.cursor()
-        statement = "SELECT * FROM users WHERE username = ? AND password = ?;"
-        c.execute(statement, (username, password))
+        statement = "SELECT * FROM users WHERE username = ?;"
+        c.execute(statement, (username,))
         result = c.fetchone()
-
-        if result:
+        if result and check_password_hash(result[2], password):
             session.clear()
             session['logged_in'] = True
             session['userid'] = result[0]
@@ -133,15 +133,13 @@ def register():
     usererror = ""
     passworderror = ""
     if request.method == 'POST':
-        
-
         username = request.form['username']
-        password = request.form['password']
+        password_hash = generate_password_hash(request.form['password'])
         db = connect_db()
         c = db.cursor()
         user_statement = """SELECT * FROM users WHERE username = ?;"""
 
-        c.execute(user_statement, (username,))
+        c.execute(user_statement, (username))
         if c.fetchone():
             errored = True
             usererror = "That username is already in use by someone else!"
@@ -149,7 +147,7 @@ def register():
         if(not errored):
             statement = """INSERT INTO users(id,username,password) VALUES(null, ?, ?);"""
             print(statement)
-            c.execute(statement, (username, password))
+            c.execute(statement, (username, password_hash))
             db.commit()
             db.close()
             return f"""<html>
