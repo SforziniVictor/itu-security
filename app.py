@@ -2,7 +2,7 @@ import json, sqlite3, click, functools, os, hashlib,time, random, sys, secrets
 from flask import Flask, current_app, g, session, redirect, render_template, url_for, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
-
+DUMMY_PASSWORD_HASH = generate_password_hash("dummy_password_for_timing_attack_dummies")
 
 
 ### DATABASE FUNCTIONS ###
@@ -126,7 +126,12 @@ def login():
         statement = "SELECT * FROM users WHERE username = ?;"
         c.execute(statement, (username,))
         result = c.fetchone()
-        if result and check_password_hash(result[2], password):
+
+        # We always call check_password_hash to mitigate timing attacks
+        hash = result[2] if result else DUMMY_PASSWORD_HASH
+        success = check_password_hash(hash, password)
+
+        if result and success:
             session.clear()
             session['logged_in'] = True
             session['userid'] = result[0]
@@ -149,7 +154,7 @@ def register():
         c = db.cursor()
         user_statement = """SELECT * FROM users WHERE username = ?;"""
 
-        c.execute(user_statement, (username))
+        c.execute(user_statement, (username,))
         if c.fetchone():
             errored = True
             usererror = "That username is already in use by someone else!"
