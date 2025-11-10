@@ -1,4 +1,4 @@
-import json, sqlite3, click, functools, os, hashlib,time, random, sys
+import json, sqlite3, click, functools, os, hashlib,time, random, sys, secrets
 from flask import Flask, current_app, g, session, redirect, render_template, url_for, request
 
 
@@ -23,7 +23,7 @@ CREATE TABLE notes (
     assocUser INTEGER NOT NULL,
     dateWritten DATETIME NOT NULL,
     note TEXT NOT NULL,
-    publicID INTEGER NOT NULL
+    publicID INTEGER NOT NULL UNIQUE
 );
 
 CREATE TABLE users (
@@ -75,7 +75,7 @@ def notes():
             c = db.cursor()
             statement = """INSERT INTO notes(id,assocUser,dateWritten,note,publicID) VALUES(null, ?, ?, ?, ?);"""
             print(statement)
-            c.execute(statement, (session['userid'], time.strftime('%Y-%m-%d %H:%M:%S'), note, random.randrange(1000000000, 9999999999)))
+            c.execute(statement, (session['userid'], time.strftime('%Y-%m-%d %H:%M:%S'), note, secrets.token_hex(32)))
             db.commit()
             db.close()
         elif request.form['submit_button'] == 'import note':
