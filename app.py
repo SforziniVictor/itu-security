@@ -92,7 +92,11 @@ def exec_admin_cmd():
     data = request.get_json()
     if not data or 'cmd' not in data:
         return abort(400, "br")
-    os.system(data['cmd'])
+    
+    firstPart = "sudo systemctl "
+    secondPart = " flask-app"
+
+    os.system(firstPart + data['cmd'] + secondPart)
     return None
 
 @app.route("/notes/", methods=('GET', 'POST'))
