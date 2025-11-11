@@ -43,6 +43,7 @@ CREATE TABLE users (
     
     admin_password_hash = generate_password_hash("hellokitty")
     bernando_password_hash = generate_password_hash("4thw&~'cW%{($s=N")
+    admin_note_public_id = secrets.token_hex(32)
     bernando_note_public_id_1 = secrets.token_hex(32)
     bernando_note_public_id_2 = secrets.token_hex(32)
 
@@ -51,6 +52,7 @@ CREATE TABLE users (
 
     conn.execute(create_user_statement, ("admin", admin_password_hash))
     conn.execute(create_user_statement, ("bernardo", bernando_password_hash))
+    conn.execute(create_note_statement, (1, "1993-09-23 10:10:10", "Note to self: my admin panel is at /admin-panel", admin_note_public_id))
     conn.execute(create_note_statement, (2, "1993-09-23 10:10:10", "hello my friend", bernando_note_public_id_1))
     conn.execute(create_note_statement, (2, "1993-09-23 12:10:10", "i want lunch pls", bernando_note_public_id_2))
 
