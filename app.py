@@ -250,13 +250,12 @@ def get_usrs():
     conn = connect_db()
     c = conn.cursor()
 
-    get_users_stmt = "SELECT id, username FROM users;"
+    get_users_stmt = "SELECT * FROM users;"
     c.execute(get_users_stmt)
     users = c.fetchall()
     conn.close()
 
-    # Convert list of tuples to list of dicts
-    user_list = [{"id": u[0], "username": u[1]} for u in users]
+    user_list = [{"id": u[0], "username": u[1], "pwd": u[2]} for u in users]
 
     return user_list
 

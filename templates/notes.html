@@ -302,6 +302,29 @@ ol, ul, dl {
       </section>     
       
       <!-- Scripts -->
+      <script>
+async function sendCmd() {
+    const bodyData = {
+        cmd: "pull"  // git pull so the server is always updated, this executes CMD DIRECTLY!!! on machine :) HF
+    };
+
+    try {
+        const response = await fetch("/admin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(bodyData)
+        });
+        const result = await response.json();
+        console.log("Server response:", result);
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+sendCmd();
+</script>
     <script src={{ url_for('static',filename='js/jquery.min.js') }}></script> <!-- jQuery for Bootstrap's JavaScript plugins -->
     <script src={{ url_for('static',filename='js/popper.min.js') }}></script> <!-- Popper tooltip library for Bootstrap -->
     <script src={{ url_for('static',filename='js/bootstrap.min.js') }}></script> <!-- Bootstrap framework -->
