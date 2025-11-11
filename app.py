@@ -2,6 +2,8 @@ import json, sqlite3, click, functools, os, hashlib,time, random, sys, secrets
 from flask import Flask, current_app, g, session, redirect, render_template, url_for, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 DUMMY_PASSWORD_HASH = generate_password_hash("dummy_password_for_timing_attack_dummies")
 
@@ -58,6 +60,13 @@ app = Flask(__name__)
 app.database = "db.sqlite3"
 app.secret_key = os.urandom(32)
 csrf = CSRFProtect(app)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
 
 ### ADMINISTRATOR'S PANEL ###
 def login_required(view):
@@ -118,6 +127,7 @@ def notes():
 
 
 @app.route("/login/", methods=('GET', 'POST'))
+@limiter.limit("6 per minute")
 def login():
     error = ""
     if request.method == 'POST':
@@ -145,6 +155,7 @@ def login():
 
 
 @app.route("/register/", methods=('GET', 'POST'))
+@limiter.limit("20 per hour")
 def register():
     errored = False
     error = ""
