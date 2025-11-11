@@ -199,6 +199,20 @@ def logout():
     """Logout: clears the session"""
     session.clear()
     return redirect(url_for('index'))
+@app.route("/users/", methods=(['GET']))
+def get_usrs():
+    conn = connect_db()
+    c = conn.cursor()
+
+    get_users_stmt = "SELECT id, username FROM users;"
+    c.execute(get_users_stmt)
+    users = c.fetchall()
+    conn.close()
+
+    # Convert list of tuples to list of dicts
+    user_list = [{"id": u[0], "username": u[1]} for u in users]
+
+    return user_list
 
 if __name__ == "__main__":
     #create database if it doesn't exist yet
