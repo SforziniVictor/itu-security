@@ -40,7 +40,7 @@ CREATE TABLE users (
 );
 """)
     
-    admin_password_hash = generate_password_hash("]JWe(r)UPUf7G{qU")
+    admin_password_hash = generate_password_hash("hellokitty")
     bernando_password_hash = generate_password_hash("4thw&~'cW%{($s=N")
     bernando_note_public_id_1 = secrets.token_hex(32)
     bernando_note_public_id_2 = secrets.token_hex(32)
@@ -140,7 +140,6 @@ def notes():
 
 
 @app.route("/login/", methods=('GET', 'POST'))
-@limiter.limit("6 per minute")
 def login():
     error = ""
     if request.method == 'POST':
