@@ -101,7 +101,7 @@
                         <br>
                         <form action="" method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                          {% if usererror %}
+                          {% if error %}
                           <p class="p-large"><strong>Error:</strong> {{ usererror }}
                         {% endif %}
                         <br>

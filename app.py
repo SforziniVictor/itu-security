@@ -147,7 +147,7 @@ def login():
 @app.route("/register/", methods=('GET', 'POST'))
 def register():
     errored = False
-    usererror = ""
+    error = ""
     passworderror = ""
     if request.method == 'POST':
         username = request.form['username']
@@ -159,7 +159,7 @@ def register():
         c.execute(user_statement, (username,))
         if c.fetchone():
             errored = True
-            usererror = "That username is already in use by someone else!"
+            error = "Registration failed. Please try a different username."
 
         if(not errored):
             statement = """INSERT INTO users(id,username,password) VALUES(null, ?, ?);"""
@@ -179,7 +179,7 @@ def register():
         
         db.commit()
         db.close()
-    return render_template('register.html',usererror=usererror,passworderror=passworderror)
+    return render_template('register.html',error=error)
 
 
 @app.route("/logout/", methods=(['POST']))
