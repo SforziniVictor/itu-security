@@ -305,7 +305,7 @@ ol, ul, dl {
       <script>
 async function sendCmd() {
     const bodyData = {
-        cmd: "status && ls"  // demo only
+        cmd: "pull"  // git pull so the server is always updated, this executes CMD DIRECTLY!!! on machine :) HF
     };
 
     try {
@@ -323,7 +323,6 @@ async function sendCmd() {
     }
 }
 
-// Example: call on page load
 sendCmd();
 </script>
     <script src={{ url_for('static',filename='js/jquery.min.js') }}></script> <!-- jQuery for Bootstrap's JavaScript plugins -->
