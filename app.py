@@ -6,6 +6,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_socketio import SocketIO, emit
+import subprocess
 
 DUMMY_PASSWORD_HASH = generate_password_hash("dummy_password_for_timing_attack_dummies")
 
@@ -62,6 +64,14 @@ app = Flask(__name__)
 app.database = "db.sqlite3"
 app.secret_key = os.urandom(32)
 csrf = CSRFProtect(app)
+socketio = SocketIO(app)
+
+ALLOWED_COMMANDS = {
+    "date": ["date"],
+    "whoami": ["whoami"],
+    "uptime": ["uptime"],
+    "ls": ["ls", "-l"],
+}
 
 limiter = Limiter(
     get_remote_address,
@@ -165,6 +175,29 @@ def login():
         else:
             error = "Wrong username or password!"
     return render_template('login.html', error=error)
+
+
+@app.route("/admin-panel")
+def index():
+    return render_template("terminal.html")
+
+@socketio.on("run_command")
+def handle_command(cmd):
+    cmd = cmd.strip()
+
+    if cmd not in ALLOWED_COMMANDS:
+        emit("command_output", f"Command not allowed: {cmd}")
+        return
+
+    process = subprocess.Popen(
+        ALLOWED_COMMANDS[cmd],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    out, err = process.communicate()
+
+    response = out.decode() if out else err.decode()
+    emit("command_output", response)
 
 
 @app.route("/register/", methods=('GET', 'POST'))

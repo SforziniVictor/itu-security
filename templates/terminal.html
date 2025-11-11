@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Terminal</title>
+  <style>
+    #terminal {
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+    }
+    input {
+      width: 100%;
+      background: #111;
+      color: #0f0;
+      border: none;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal"></div>
+  <input id="cmd" placeholder="Enter command..." autofocus>
+  
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    const terminal = document.getElementById("terminal");
+    const input = document.getElementById("cmd");
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const command = input.value;
+        terminal.innerHTML += "> " + command + "<br>";
+        socket.emit("run_command", command);
+        input.value = "";
+      }
+    });
+
+    socket.on("command_output", msg => {
+      terminal.innerHTML += msg + "<br>";
+      terminal.scrollTop = terminal.scrollHeight;
+    });
+  </script>
+</body>
+</html>
