@@ -8,6 +8,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_socketio import SocketIO, emit
 import subprocess
+import html
 
 DUMMY_PASSWORD_HASH = generate_password_hash("dummy_password_for_timing_attack_dummies")
 
@@ -189,6 +190,7 @@ def handle_command(cmd):
     out, err = process.communicate()
 
     response = out.decode() if out else err.decode()
+    response = html.escape(response)
     emit("command_output", response)
 
 
