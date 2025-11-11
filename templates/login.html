@@ -108,6 +108,7 @@
               <h1>Please login</h1>
                 <br>
               <form action="" method="post">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="text" placeholder="Username" name="username" value="{{
           request.form.username }}">
                 <input type="password" placeholder="Password" name="password" value="{{

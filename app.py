@@ -1,6 +1,7 @@
 import json, sqlite3, click, functools, os, hashlib,time, random, sys, secrets
 from flask import Flask, current_app, g, session, redirect, render_template, url_for, request
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_wtf.csrf import CSRFProtect
 
 DUMMY_PASSWORD_HASH = generate_password_hash("dummy_password_for_timing_attack_dummies")
 
@@ -56,6 +57,7 @@ CREATE TABLE users (
 app = Flask(__name__)
 app.database = "db.sqlite3"
 app.secret_key = os.urandom(32)
+csrf = CSRFProtect(app)
 
 ### ADMINISTRATOR'S PANEL ###
 def login_required(view):
@@ -180,7 +182,7 @@ def register():
     return render_template('register.html',usererror=usererror,passworderror=passworderror)
 
 
-@app.route("/logout/")
+@app.route("/logout/", methods=(['POST']))
 @login_required
 def logout():
     """Logout: clears the session"""

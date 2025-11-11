@@ -259,7 +259,11 @@ ol, ul, dl {
 
     <body style="background-color:#fff;">
       <section class="notes__background-image">
-        <a href="/logout/" class="notes__logout btn-solid-lg">Logout</a>
+          <form action="{{ url_for('logout') }}" method="POST" style="display: inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="notes__logout btn-solid-lg">Logout</button>
+          </form>
+
         <article class="notes__background-title-container">
           <h1 class="notes__title">Welcome</h1>
           <h2 class="notes__title-user">{{session['username']}}</h2>
@@ -276,6 +280,7 @@ ol, ul, dl {
       <section class="notes__body-content notes__body-bottom-padding">
         <div class="notes__body-top-border"></div>
         <form action="" method="post" class="notes__input-wrapper">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="notes__input-container">
               <label for="note">New note:</label>
               <textarea name="noteinput" placeholder=">Enter text here..." class="textfield form-control" value={{ request.form.noteinput }}></textarea><br>
@@ -284,6 +289,7 @@ ol, ul, dl {
         </form> 
         
         <form action="" method="post" class="notes__input-wrapper">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="notes__input-container">
               <label for="note">Import a note from someone else:</label>
               <input class="form-control notes__input__no-margin" type="text" placeholder="XXXXXXXXXX" name="noteid" value={{request.form.noteid}}>
